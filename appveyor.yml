@@ -8,218 +8,216 @@ install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
   - cmd: |
-      @echo off
+        setlocal
+        pushd "%~dp0"
+        for /F "tokens=2,3,4 delims=/- " %%a in ("%DATE%") do set TIMESTAMP_DATE=%%c-%%a-%%%b
+        for /F "tokens=1,2,3 delims=.: " %%a in ("%TIME%") do set TIMESTAMP_TIME=%%a%%b%%c
+        set LOG_TIMESTAMP=%TIMESTAMP_DATE%_%TIMESTAMP_TIME%
+        set LOG_DIR_BASE=%TEMP%\groupwise_client_install_logs
+        set LOG_DIR=%LOG_DIR_BASE%\%LOG_TIMESTAMP%
+        set TEST_DIR=%WINDIR%\temp_gw_%LOG_TIMESTAMP%
 
-setlocal
-pushd "%~dp0"
-for /F "tokens=2,3,4 delims=/- " %%a in ("%DATE%") do set TIMESTAMP_DATE=%%c-%%a-%%%b
-for /F "tokens=1,2,3 delims=.: " %%a in ("%TIME%") do set TIMESTAMP_TIME=%%a%%b%%c
-set LOG_TIMESTAMP=%TIMESTAMP_DATE%_%TIMESTAMP_TIME%
-set LOG_DIR_BASE=%TEMP%\groupwise_client_install_logs
-set LOG_DIR=%LOG_DIR_BASE%\%LOG_TIMESTAMP%
-set TEST_DIR=%WINDIR%\temp_gw_%LOG_TIMESTAMP%
+        set GW_PKG_VCRUNTIMES_2012=vcredist_2012update3_x86.exe
+        set GW_PKG_VCRUNTIMES_2013=vcredist2013_x86.exe
+        set GW_PKG_VCRUNTIMES_2013_64=vcredist2013_x64.exe
+        set GW_PKG_VCRUNTIMES_2015=vc_redist_2015.x86.exe
+        set GW_PKG_DOTNETFX=dotnetfx.exe
+        set GW_PKG_DOTNETFX45=dotnetfx45_full_x86_x64.exe
+        set GW_PKG_WSE3=wse3.msi
+        set GW_PKG_GROUPWISE=groupwise.msi
+        Set GW_LOG_WMIC_BEFORE=08_wmic_before.log
+        Set GW_LOG_WMIC_AFTER=12_wmic_after.log
+        Set GW_LOG_WMIC_UNINSTALL=10_wmic_uninstall.log
+        Set GW_LOG_APPWIZ_BEFORE=09_appwiz_before.log
+        Set GW_SELECT_LANG=true
 
-set GW_PKG_VCRUNTIMES_2012=vcredist_2012update3_x86.exe
-set GW_PKG_VCRUNTIMES_2013=vcredist2013_x86.exe
-set GW_PKG_VCRUNTIMES_2013_64=vcredist2013_x64.exe
-set GW_PKG_VCRUNTIMES_2015=vc_redist_2015.x86.exe
-set GW_PKG_DOTNETFX=dotnetfx.exe
-set GW_PKG_DOTNETFX45=dotnetfx45_full_x86_x64.exe
-set GW_PKG_WSE3=wse3.msi
-set GW_PKG_GROUPWISE=groupwise.msi
-Set GW_LOG_WMIC_BEFORE=08_wmic_before.log
-Set GW_LOG_WMIC_AFTER=12_wmic_after.log
-Set GW_LOG_WMIC_UNINSTALL=10_wmic_uninstall.log
-Set GW_LOG_APPWIZ_BEFORE=09_appwiz_before.log
-Set GW_SELECT_LANG=true
+        if /i [%1]==[/?]      goto lbl_syntax
+        if /i [%1]==[/help]   goto lbl_syntax
+        if /i [%1]==[-help]   goto lbl_syntax
+        if /i [%1]==[--help]  goto lbl_syntax
 
-if /i [%1]==[/?]      goto lbl_syntax
-if /i [%1]==[/help]   goto lbl_syntax
-if /i [%1]==[-help]   goto lbl_syntax
-if /i [%1]==[--help]  goto lbl_syntax
+        if /i [%1]==[/silent] (
+            set GW_INST_PART=true
+            set GW_INST_METHOD=silent
+            set GW_SELECT_LANG=false
 
-if /i [%1]==[/silent] (
-    set GW_INST_PART=true
-    set GW_INST_METHOD=silent
-    set GW_SELECT_LANG=false
+            set GW_OPTS_VCRUNTIMES_2012=/quiet /repair /norestart
+            set GW_OPTS_VCRUNTIMES_2013=/quiet /repair /norestart
+            set GW_OPTS_VCRUNTIMES_2013_64=/quiet /repair /norestart
+            set GW_OPTS_VCRUNTIMES_2015=/quiet /repair /norestart
+            set GW_OPTS_DOTNETFX=/q /repair /norestart
+            set GW_OPTS_DOTNETFX45=/q /repair /norestart
+            set GW_OPTS_WSE3=/qn
+            set GW_OPTS_GROUPWISE=/qn
+        )
 
-    set GW_OPTS_VCRUNTIMES_2012=/quiet /repair /norestart
-    set GW_OPTS_VCRUNTIMES_2013=/quiet /repair /norestart
-    set GW_OPTS_VCRUNTIMES_2013_64=/quiet /repair /norestart
-    set GW_OPTS_VCRUNTIMES_2015=/quiet /repair /norestart
-    set GW_OPTS_DOTNETFX=/q /repair /norestart
-    set GW_OPTS_DOTNETFX45=/q /repair /norestart
-    set GW_OPTS_WSE3=/qn
-    set GW_OPTS_GROUPWISE=/qn
-)
+        if /i [%1]==[/unattended] (
+            set GW_INST_PART=true
+            set GW_INST_METHOD=unattended
+            set GW_SELECT_LANG=false
 
-if /i [%1]==[/unattended] (
-    set GW_INST_PART=true
-    set GW_INST_METHOD=unattended
-    set GW_SELECT_LANG=false
+            set GW_OPTS_VCRUNTIMES_2012=/quiet /repair /norestart
+            set GW_OPTS_VCRUNTIMES_2013=/quiet /repair /norestart
+            set GW_OPTS_VCRUNTIMES_2013_64=/quiet /repair /norestart
+            set GW_OPTS_VCRUNTIMES_2015=/quiet /repair /norestart
+            set GW_OPTS_DOTNETFX=/q /repair /norestart
+            set GW_OPTS_DOTNETFX45=/q /repair /norestart
+            set GW_OPTS_WSE3=/qn
+            set GW_OPTS_GROUPWISE=/qb!
+        )
 
-    set GW_OPTS_VCRUNTIMES_2012=/quiet /repair /norestart
-    set GW_OPTS_VCRUNTIMES_2013=/quiet /repair /norestart
-    set GW_OPTS_VCRUNTIMES_2013_64=/quiet /repair /norestart
-    set GW_OPTS_VCRUNTIMES_2015=/quiet /repair /norestart
-    set GW_OPTS_DOTNETFX=/q /repair /norestart
-    set GW_OPTS_DOTNETFX45=/q /repair /norestart
-    set GW_OPTS_WSE3=/qn
-    set GW_OPTS_GROUPWISE=/qb!
-)
+        if /i [%1]==[/manual] set GW_INST_PART=true
 
-if /i [%1]==[/manual] set GW_INST_PART=true
+        if /i [%2]==[/log] (
+            set GW_INST_LOGGING=true
+            set GW_OPTS_VCRUNTIMES_2012=%GW_OPTS_VCRUNTIMES_2012%     /log "%LOG_DIR%\02_%GW_PKG_VCRUNTIMES_2012%.log"
+            set GW_OPTS_VCRUNTIMES_2013=%GW_OPTS_VCRUNTIMES_2013%     /l "%LOG_DIR%\03_%GW_PKG_VCRUNTIMES_2013%.log"
+            set GW_OPTS_VCRUNTIMES_2013_64=%GW_OPTS_VCRUNTIMES_2013%     /l "%LOG_DIR%\03_%GW_PKG_VCRUNTIMES_2013_64%.log"
+            set GW_OPTS_VCRUNTIMES_2015=%GW_OPTS_VCRUNTIMES_2015%     /l "%LOG_DIR%\05_%GW_PKG_VCRUNTIMES_2015%.log"
+            set GW_OPTS_WSE3=%GW_OPTS_WSE3%                 /l*v "%LOG_DIR%\04_%GW_PKG_WSE3%.log"
+            set GW_OPTS_WMIC=/INTERACTIVE:OFF
+            set GW_OPTS_WMIC_UNINSTALL=%GW_OPTS_WMIC% /APPEND:"%LOG_DIR%\%GW_LOG_WMIC_UNINSTALL%"
+            set GW_OPTS_WMIC_BEFORE=%GW_OPTS_WMIC% /APPEND:"%LOG_DIR%\%GW_LOG_WMIC_BEFORE%"
+            set GW_OPTS_WMIC_AFTER=%GW_OPTS_WMIC% /APPEND:"%LOG_DIR%\%GW_LOG_WMIC_AFTER%"
 
-if /i [%2]==[/log] (
-    set GW_INST_LOGGING=true
-    set GW_OPTS_VCRUNTIMES_2012=%GW_OPTS_VCRUNTIMES_2012%     /log "%LOG_DIR%\02_%GW_PKG_VCRUNTIMES_2012%.log"
-    set GW_OPTS_VCRUNTIMES_2013=%GW_OPTS_VCRUNTIMES_2013%     /l "%LOG_DIR%\03_%GW_PKG_VCRUNTIMES_2013%.log"
-    set GW_OPTS_VCRUNTIMES_2013_64=%GW_OPTS_VCRUNTIMES_2013%     /l "%LOG_DIR%\03_%GW_PKG_VCRUNTIMES_2013_64%.log"
-    set GW_OPTS_VCRUNTIMES_2015=%GW_OPTS_VCRUNTIMES_2015%     /l "%LOG_DIR%\05_%GW_PKG_VCRUNTIMES_2015%.log"
-    set GW_OPTS_WSE3=%GW_OPTS_WSE3%                 /l*v "%LOG_DIR%\04_%GW_PKG_WSE3%.log"
-    set GW_OPTS_WMIC=/INTERACTIVE:OFF
-    set GW_OPTS_WMIC_UNINSTALL=%GW_OPTS_WMIC% /APPEND:"%LOG_DIR%\%GW_LOG_WMIC_UNINSTALL%"
-    set GW_OPTS_WMIC_BEFORE=%GW_OPTS_WMIC% /APPEND:"%LOG_DIR%\%GW_LOG_WMIC_BEFORE%"
-    set GW_OPTS_WMIC_AFTER=%GW_OPTS_WMIC% /APPEND:"%LOG_DIR%\%GW_LOG_WMIC_AFTER%"
+            set GW_OPTS_GROUPWISE=%GW_OPTS_GROUPWISE%       /l*v "%LOG_DIR%\10_%GW_PKG_GROUPWISE%.log"
 
-    set GW_OPTS_GROUPWISE=%GW_OPTS_GROUPWISE%       /l*v "%LOG_DIR%\10_%GW_PKG_GROUPWISE%.log"
+            if /i [%GW_INST_METHOD%]==[manual]     set GW_OPTS_DOTNETFX=/log "%LOG_DIR%\03_%GW_PKG_DOTNETFX%.log"
+            if /i [%GW_INST_METHOD%]==[silent]     set GW_OPTS_DOTNETFX=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX%.log"
+            if /i [%GW_INST_METHOD%]==[unattended] set GW_OPTS_DOTNETFX=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX%.log"
 
-    if /i [%GW_INST_METHOD%]==[manual]     set GW_OPTS_DOTNETFX=/log "%LOG_DIR%\03_%GW_PKG_DOTNETFX%.log"
-    if /i [%GW_INST_METHOD%]==[silent]     set GW_OPTS_DOTNETFX=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX%.log"
-    if /i [%GW_INST_METHOD%]==[unattended] set GW_OPTS_DOTNETFX=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX%.log"
+            if /i [%GW_INST_METHOD%]==[manual]     set GW_OPTS_DOTNETFX45=/log "%LOG_DIR%\03_%GW_PKG_DOTNETFX45%.log"
+            if /i [%GW_INST_METHOD%]==[silent]     set GW_OPTS_DOTNETFX45=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX45%.log"
+            if /i [%GW_INST_METHOD%]==[unattended] set GW_OPTS_DOTNETFX45=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX45%.log"
 
-    if /i [%GW_INST_METHOD%]==[manual]     set GW_OPTS_DOTNETFX45=/log "%LOG_DIR%\03_%GW_PKG_DOTNETFX45%.log"
-    if /i [%GW_INST_METHOD%]==[silent]     set GW_OPTS_DOTNETFX45=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX45%.log"
-    if /i [%GW_INST_METHOD%]==[unattended] set GW_OPTS_DOTNETFX45=/q /repair /norestart /log "%LOG_DIR%\03_%GW_PKG_DOTNETFX45%.log"
+            if /i not [%GW_INST_METHOD%]==[silent] echo Log file directory: %LOG_DIR%
 
-    if /i not [%GW_INST_METHOD%]==[silent] echo Log file directory: %LOG_DIR%
+            mkdir %LOG_DIR% 2>nul
+        )
 
-    mkdir %LOG_DIR% 2>nul
-)
+        rem Simple check to ensure this is running in elevated mode
+        rmdir %TEST_DIR% 2>NUL 1>NUL
+        mkdir %TEST_DIR% 2>NUL 1>NUL
+        set ERR=%ERRORLEVEL%
+        if not [%ERR%]==[0] goto lbl_error_not_elevated
+        rmdir %TEST_DIR% 2>NUL 1>NUL
 
-rem Simple check to ensure this is running in elevated mode
-rmdir %TEST_DIR% 2>NUL 1>NUL
-mkdir %TEST_DIR% 2>NUL 1>NUL
-set ERR=%ERRORLEVEL%
-if not [%ERR%]==[0] goto lbl_error_not_elevated
-rmdir %TEST_DIR% 2>NUL 1>NUL
+        if /i [%GW_INST_PART%]==[true] call :lbl_inst_prereqs
+        if /i [%GW_INST_PART%]==[true] goto lbl_inst_groupwise_client
 
-if /i [%GW_INST_PART%]==[true] call :lbl_inst_prereqs
-if /i [%GW_INST_PART%]==[true] goto lbl_inst_groupwise_client
+        rem if /i not [%GW_INST_PART%]==[true] set SETUP_CMD_OPTS=%*
+        rem if /i not [%GW_INST_PART%]==[true] goto lbl_main
+        goto lbl_main
+        goto lbl_end
 
-rem if /i not [%GW_INST_PART%]==[true] set SETUP_CMD_OPTS=%*
-rem if /i not [%GW_INST_PART%]==[true] goto lbl_main
-goto lbl_main
-goto lbl_end
+        :lbl_syntax
+            echo Syntax: %0 (/manual OR /unattended OR /silent [/log])
+            echo.
+            echo         /silent ....... Install the pre-reqs and GroupWise silently
+            echo         /unattended ... Install the pre-reqs and GroupWise visually unattended
+            echo         /manual ....... Install the pre-reqs and GroupWise visually with
+            echo                         interaction from user
+            echo         /log .......... Enable logging (specified in addition to above switches)
+            echo.
+            echo Environment variables:
+            echo         GW_INST_TRANSFORM_FILE ...... Set this to point to the .MST file used
+            echo                                       for applying a transform to the install
+            echo         GW_INST_REMOVE_MSI .......... Set this to 'true' to request WMIC to
+            echo                                       uninstall all "GroupWise" MSI instances
+            echo.
+            echo Note: Log files are located in %LOG_DIR_BASE%
+        goto :eof
 
-:lbl_syntax
-    echo Syntax: %0 (/manual OR /unattended OR /silent [/log])
-    echo.
-    echo         /silent ....... Install the pre-reqs and GroupWise silently
-    echo         /unattended ... Install the pre-reqs and GroupWise visually unattended
-    echo         /manual ....... Install the pre-reqs and GroupWise visually with
-    echo                         interaction from user
-    echo         /log .......... Enable logging (specified in addition to above switches)
-    echo.
-    echo Environment variables:
-    echo         GW_INST_TRANSFORM_FILE ...... Set this to point to the .MST file used
-    echo                                       for applying a transform to the install
-    echo         GW_INST_REMOVE_MSI .......... Set this to 'true' to request WMIC to
-    echo                                       uninstall all "GroupWise" MSI instances
-    echo.
-    echo Note: Log files are located in %LOG_DIR_BASE%
-goto :eof
+        :lbl_main
+            call :select_language
+            start /wait msiexec /i %GW_PKG_GROUPWISE% %GW_OPTS_GROUPWISE%
+            set ERR=%ERRORLEVEL%
+            xcopy "\Program Files (x86)\Novell\GroupWise\gwcheck\*" "\Program Files (x86)\Novell\GroupWise" /U /Y 1>NUL 2>NUL
+        goto :eof
 
-:lbl_main
-    call :select_language
-    start /wait msiexec /i %GW_PKG_GROUPWISE% %GW_OPTS_GROUPWISE%
-    set ERR=%ERRORLEVEL%
-    xcopy "\Program Files (x86)\Novell\GroupWise\gwcheck\*" "\Program Files (x86)\Novell\GroupWise" /U /Y 1>NUL 2>NUL
-goto :eof
+        :lbl_inst_prereqs
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2012%)...
+            start /wait %GW_PKG_VCRUNTIMES_2012% %GW_OPTS_VCRUNTIMES_2012%
 
-:lbl_inst_prereqs
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2012%)...
-    start /wait %GW_PKG_VCRUNTIMES_2012% %GW_OPTS_VCRUNTIMES_2012%
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2013%)...
+            start /wait %GW_PKG_VCRUNTIMES_2013% %GW_OPTS_VCRUNTIMES_2013%
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2013%)...
-    start /wait %GW_PKG_VCRUNTIMES_2013% %GW_OPTS_VCRUNTIMES_2013%
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2013_64%)...
+            start /wait %GW_PKG_VCRUNTIMES_2013_64% %GW_OPTS_VCRUNTIMES_2013_64%
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2013_64%)...
-    start /wait %GW_PKG_VCRUNTIMES_2013_64% %GW_OPTS_VCRUNTIMES_2013_64%
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2015%)...
+            start /wait %GW_PKG_VCRUNTIMES_2015% %GW_OPTS_VCRUNTIMES_2015%
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS runtime libraries (%GW_PKG_VCRUNTIMES_2015%)...
-    start /wait %GW_PKG_VCRUNTIMES_2015% %GW_OPTS_VCRUNTIMES_2015%
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS .NET Framework (%GW_PKG_DOTNETFX%)...
+            if not exist "%WINDIR%\microsoft.net\framework\v2.0.50727\regasm.exe" (
+                start /wait %GW_PKG_DOTNETFX% %GW_OPTS_DOTNETFX%
+            ) else (
+                if /i [%GW_INST_LOGGING%]==[true] echo               (Skipping installation of %GW_PKG_DOTNETFX% as it is already installed^)
+            )
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS .NET Framework (%GW_PKG_DOTNETFX%)...
-    if not exist "%WINDIR%\microsoft.net\framework\v2.0.50727\regasm.exe" (
-        start /wait %GW_PKG_DOTNETFX% %GW_OPTS_DOTNETFX%
-    ) else (
-        if /i [%GW_INST_LOGGING%]==[true] echo               (Skipping installation of %GW_PKG_DOTNETFX% as it is already installed^)
-    )
+            start /wait %GW_PKG_DOTNETFX45% %GW_OPTS_DOTNETFX45%
 
-	start /wait %GW_PKG_DOTNETFX45% %GW_OPTS_DOTNETFX45%
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS Web Services Enhancements (%GW_PKG_WSE3%)...
+            start /wait msiexec /i %GW_PKG_WSE3% %GW_OPTS_WSE3%
+        goto :eof
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing MS Web Services Enhancements (%GW_PKG_WSE3%)...
-    start /wait msiexec /i %GW_PKG_WSE3% %GW_OPTS_WSE3%
-goto :eof
+        :lbl_inst_groupwise_client
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering environment info...
+            if /i [%GW_INST_LOGGING%]==[true] set > "%LOG_DIR%\00_env.log"
 
-:lbl_inst_groupwise_client
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering environment info...
-    if /i [%GW_INST_LOGGING%]==[true] set > "%LOG_DIR%\00_env.log"
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering existing "GroupWise" MSI instance info...
+            if /i [%GW_INST_LOGGING%]==[true] echo GroupWise MSI instance info - BEFORE installing: > "%LOG_DIR%\%GW_LOG_WMIC_BEFORE%"
+            if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_BEFORE% product where name="GroupWise" 1>NUL 2>NUL
+            if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_BEFORE% product where name="Novell GroupWise" 1>NUL 2>NUL
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering existing "GroupWise" MSI instance info...
-    if /i [%GW_INST_LOGGING%]==[true] echo GroupWise MSI instance info - BEFORE installing: > "%LOG_DIR%\%GW_LOG_WMIC_BEFORE%"
-    if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_BEFORE% product where name="GroupWise" 1>NUL 2>NUL
-    if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_BEFORE% product where name="Novell GroupWise" 1>NUL 2>NUL
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering existing AppWiz info...
+            if /i [%GW_INST_LOGGING%]==[true] echo AppWiz.cpl Info (Add/Remove Programs): > "%LOG_DIR%\%GW_LOG_APPWIZ_BEFORE%"
+            if /i [%GW_INST_LOGGING%]==[true] reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s >> "%LOG_DIR%\%GW_LOG_APPWIZ_BEFORE%"
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering existing AppWiz info...
-    if /i [%GW_INST_LOGGING%]==[true] echo AppWiz.cpl Info (Add/Remove Programs): > "%LOG_DIR%\%GW_LOG_APPWIZ_BEFORE%"
-    if /i [%GW_INST_LOGGING%]==[true] reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" /s >> "%LOG_DIR%\%GW_LOG_APPWIZ_BEFORE%"
+            if /i [%GW_INST_LOGGING%]==[true] if /i ["%GW_INST_REMOVE_MSI%"]==["true"] echo Please wait - Uninstalling all previous "GroupWise" MSI instances...
+            if /i [%GW_INST_LOGGING%]==[true] echo GroupWise instance info - Uninstalling (GW_INST_REMOVE_MSI=%GW_INST_REMOVE_MSI%): > "%LOG_DIR%\%GW_LOG_WMIC_UNINSTALL%"
+            if /i ["%GW_INST_REMOVE_MSI%"]==["true"] wmic %GW_OPTS_WMIC_UNINSTALL% product where name="GroupWise" call uninstall /nointeractive 1>NUL 2>NUL
+            if /i ["%GW_INST_REMOVE_MSI%"]==["true"] wmic %GW_OPTS_WMIC_UNINSTALL% product where name="Novell GroupWise" call uninstall /nointeractive 1>NUL 2>NUL
 
-    if /i [%GW_INST_LOGGING%]==[true] if /i ["%GW_INST_REMOVE_MSI%"]==["true"] echo Please wait - Uninstalling all previous "GroupWise" MSI instances...
-    if /i [%GW_INST_LOGGING%]==[true] echo GroupWise instance info - Uninstalling (GW_INST_REMOVE_MSI=%GW_INST_REMOVE_MSI%): > "%LOG_DIR%\%GW_LOG_WMIC_UNINSTALL%"
-    if /i ["%GW_INST_REMOVE_MSI%"]==["true"] wmic %GW_OPTS_WMIC_UNINSTALL% product where name="GroupWise" call uninstall /nointeractive 1>NUL 2>NUL
-    if /i ["%GW_INST_REMOVE_MSI%"]==["true"] wmic %GW_OPTS_WMIC_UNINSTALL% product where name="Novell GroupWise" call uninstall /nointeractive 1>NUL 2>NUL
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing GroupWise Client (%GW_PKG_GROUPWISE%)...
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Installing GroupWise Client (%GW_PKG_GROUPWISE%)...
+            if /i ["%GW_INST_TRANSFORM_FILE%"]==[""] if exist ".\groupwise.mst" set GW_INST_TRANSFORM_FILE=groupwise.mst
+            if /i not ["%GW_INST_TRANSFORM_FILE%"]==[""] set GW_OPTS_GROUPWISE=%GW_OPTS_GROUPWISE% TRANSFORMS=%GW_INST_TRANSFORM_FILE%
+            call :select_language
 
-    if /i ["%GW_INST_TRANSFORM_FILE%"]==[""] if exist ".\groupwise.mst" set GW_INST_TRANSFORM_FILE=groupwise.mst
-    if /i not ["%GW_INST_TRANSFORM_FILE%"]==[""] set GW_OPTS_GROUPWISE=%GW_OPTS_GROUPWISE% TRANSFORMS=%GW_INST_TRANSFORM_FILE%
-    call :select_language
+            start /wait msiexec /i %GW_PKG_GROUPWISE% %GW_OPTS_GROUPWISE%
+            set ERR=%ERRORLEVEL%
+            xcopy "\Program Files (x86)\Novell\GroupWise\gwcheck\*" "\Program Files (x86)\Novell\GroupWise" /U /Y 1>NUL 2>NUL
 
-    start /wait msiexec /i %GW_PKG_GROUPWISE% %GW_OPTS_GROUPWISE%
-    set ERR=%ERRORLEVEL%
-    xcopy "\Program Files (x86)\Novell\GroupWise\gwcheck\*" "\Program Files (x86)\Novell\GroupWise" /U /Y 1>NUL 2>NUL
+            if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering new "GroupWise" instance info...
+            if /i [%GW_INST_LOGGING%]==[true] echo GroupWise instance info - AFTER installing: > "%LOG_DIR%\%GW_LOG_WMIC_AFTER%"
+            if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_AFTER% product where name="GroupWise" 1>NUL 2>NUL
+            if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_AFTER% product where name="Novell GroupWise" 1>NUL 2>NUL
 
-    if /i [%GW_INST_LOGGING%]==[true] echo Please wait - Gathering new "GroupWise" instance info...
-    if /i [%GW_INST_LOGGING%]==[true] echo GroupWise instance info - AFTER installing: > "%LOG_DIR%\%GW_LOG_WMIC_AFTER%"
-    if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_AFTER% product where name="GroupWise" 1>NUL 2>NUL
-    if /i [%GW_INST_LOGGING%]==[true] wmic %GW_OPTS_WMIC_AFTER% product where name="Novell GroupWise" 1>NUL 2>NUL
+        goto :eof
 
-goto :eof
+        :lbl_error_not_elevated
+            echo This must be run in an elevated mode which can make changes to "%WINDIR%".
+        pause
+        goto :eof
 
-:lbl_error_not_elevated
-    echo This must be run in an elevated mode which can make changes to "%WINDIR%".
-pause
-goto :eof
+        :lbl_end
+        popd
+        exit /B %ERR%
 
-:lbl_end
-popd
-exit /B %ERR%
-
-:select_language
-    if /i [%GW_SELECT_LANG%]==[true] (
-       call SelectLanguage.bat
-:WAITLOOP
-       tasklist /V | find /N "SelectLanguage" >nul
-       if "%ERRORLEVEL%"=="0" goto WAIT
-       goto NEXT
-:WAIT
-       sleep 1 2>nul 1>nul
-       goto WAITLOOP
-:NEXT
-       set /p GW_INST_TRANSFORM_FILE=<temp.txt
-       if /i not ["%GW_INST_TRANSFORM_FILE%"]==[""] set GW_OPTS_GROUPWISE=%GW_OPTS_GROUPWISE% TRANSFORMS=%GW_INST_TRANSFORM_FILE%
-		 del temp.txt 2>nul 1>nul
-    )
-exit /B %ERR%
+        :select_language
+            if /i [%GW_SELECT_LANG%]==[true] (
+               call SelectLanguage.bat
+        :WAITLOOP
+               tasklist /V | find /N "SelectLanguage" >nul
+               if "%ERRORLEVEL%"=="0" goto WAIT
+               goto NEXT
+        :WAIT
+               sleep 1 2>nul 1>nul
+               goto WAITLOOP
+        :NEXT
+               set /p GW_INST_TRANSFORM_FILE=<temp.txt
+               if /i not ["%GW_INST_TRANSFORM_FILE%"]==[""] set GW_OPTS_GROUPWISE=%GW_OPTS_GROUPWISE% TRANSFORMS=%GW_INST_TRANSFORM_FILE%
+                 del temp.txt 2>nul 1>nul
+            )
+        exit /B %ERR%
