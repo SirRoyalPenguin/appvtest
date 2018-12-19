@@ -22,7 +22,8 @@ install:
       Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
   - 7z x %GROUPWISE_FILE_PATH% > nul
   - ps: |
-      msiexec /i $env:GROUPWISE_MSI_PATH /quiet /norestart /log install.log
+      msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
+      Start-Sleep 120
       if(Test-Path -Path $env:LOG_PATH)
       {
         Write-Host "Log found"
