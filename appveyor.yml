@@ -22,5 +22,5 @@ install:
       {
         Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH
       }
-      7z x %FULL_FILE_PATH% -aos -o %RELATIVE_PATH% > nul
-      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
+#      7z x %FULL_FILE_PATH% -aos -o %RELATIVE_PATH% > nul
+#      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
