@@ -1,10 +1,11 @@
 test: off
 
 environment:
-  FILENAME: test.rar
-  MSI_NAME: groupwise.msi
-  DOWNLOAD_URL: https://storage.googleapis.com/cloudmigrator-automated-tests/test.rar
-  FOLDER: C:\projects\appvtest
+  GROUPWISE_FILENAME: 2018GWClient.zip
+  GROUPWISE_MSI_NAME: groupwise.msi
+  GROUPWISE_DOWNLOAD_URL: https://storage.googleapis.com/cloudmigrator-automated-tests/2018GWClient.zip
+  FOLDER: C:\projects\appvtest\
+
 branches:
   only:
     - master
@@ -15,9 +16,8 @@ install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
       Write-Host (Get-Item -Path ".\").FullName
-      Start-FileDownload $env:DOWNLOAD_URL
+      Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
       get-childitem $env.FOLDER -recurse
-  - 7z x C:\projects\appvtest\test.rar > nul
-  - ps: |
-      get-childitem $env.FOLDER 
-#      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
+  - 7z x $(FOLDER)$(GROUPWISE_FILENAME) > nul
+  - ps: get-childitem $env.FOLDER 
+  - ps: msiexec /i $(FOLDER)$(GROUPWISE_MSI_NAME) /quiet /qn /norestart /log install.log
