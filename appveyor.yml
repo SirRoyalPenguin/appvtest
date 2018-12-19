@@ -19,6 +19,6 @@ install:
       Write-Host (Get-Item -Path ".\").FullName
       Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
       get-childitem $env.FOLDER -recurse
-  - 7z x $env:GROUPWISE_FILE_PATH > nul
+  - 7z x %GROUPWISE_FILE_PATH% > nul
   - ps: get-childitem $env.FOLDER 
   - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
