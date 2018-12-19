@@ -1,5 +1,5 @@
 environment:
-  FILENAME: groupWise.zip
+  FILENAME: 2018GWClient.zip
   MSI_NAME: groupwise.msi
   RELATIVE_PATH: tools\
   FULL_FILE_PATH: $(RELATIVE_PATH)$(FILENAME)
