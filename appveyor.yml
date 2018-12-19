@@ -18,5 +18,6 @@ install:
       Start-FileDownload $env:DOWNLOAD_URL
       get-childitem $env.FOLDER -recurse
   - 7z x C:\projects\appvtest\test.rar > nul
+  - ps: |
       get-childitem $env.FOLDER 
 #      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
