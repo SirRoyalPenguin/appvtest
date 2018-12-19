@@ -7,6 +7,8 @@ environment:
   FOLDER: C:\projects\appvtest\
   GROUPWISE_FILE_PATH: $(FOLDER)$(GROUPWISE_FILENAME)
   GROUPWISE_MSI_PATH: $(FOLDER)$(GROUPWISE_MSI_NAME)
+  LOG_FILE: install.log
+  LOG_PATH: $(FOLDER)$(LOG_FILE)
 branches:
   only:
     - master
@@ -21,4 +23,5 @@ install:
       get-childitem $env.FOLDER -recurse
   - 7z x %GROUPWISE_FILE_PATH% > nul
   - ps: get-childitem $env.FOLDER 
-  - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
+  - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log $env:LOG_PATH
+  - ps: Push-AppveyorArtifact $env:LOG_PATH
