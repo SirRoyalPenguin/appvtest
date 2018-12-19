@@ -18,8 +18,9 @@ max_jobs: 1
 install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
-      Get-ChildItem "c:\Program Files (x86)\"
-#      Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
-#  - 7z x %GROUPWISE_FILE_PATH% > nul
-#  - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
-#  - ps: Push-AppveyorArtifact $env:LOG_PATH
+      Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
+  - 7z x %GROUPWISE_FILE_PATH% > nul
+  - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
+  - ps: Get-ChildItem "c:\Program Files (x86)\"
+   Write-Host "==================="
+  - ps: get-childitem $env.FOLDER
