@@ -19,8 +19,6 @@ install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
       Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
-      get-childitem $env.FOLDER -recurse
   - 7z x %GROUPWISE_FILE_PATH% > nul
-  - ps: get-childitem $env.FOLDER 
   - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log $env:LOG_PATH
   - ps: Push-AppveyorArtifact $env:LOG_PATH
