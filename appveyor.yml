@@ -1,10 +1,12 @@
+test: off
+
 environment:
-  FILENAME: 2018GWClient.zip
+  FILENAME: test.rar
   MSI_NAME: groupwise.msi
   RELATIVE_PATH: tools\
   FULL_FILE_PATH: $(RELATIVE_PATH)$(FILENAME)
   MSI_PATH: ${RELATIVE_PATH}$(MSI_NAME)
-  DOWNLOAD_URL: https://storage.googleapis.com/cloudmigrator-automated-tests/2018GWClient.zip
+  DOWNLOAD_URL: https://storage.googleapis.com/cloudmigrator-automated-tests/test.rar
 
 branches:
   only:
@@ -15,6 +17,7 @@ max_jobs: 1
 install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
+      Write-Host $"(Test-Path -Path $env:FULL_FILE_PATH)"
       if(!(Test-Path -Path $env:FULL_FILE_PATH))
       {
         Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH
