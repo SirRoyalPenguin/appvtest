@@ -22,6 +22,11 @@ install:
   - 7z x %GROUPWISE_FILE_PATH% > nul
   - ps: |
       msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
-      Get-ChildItem "c:\Program Files (x86)\"
-      Write-Host "==================="
-      get-childitem $env.FOLDER
+      if(Test-Path -Path $env:LOG_PATH)
+      {
+        Write-Host "Log found"
+      }
+artifacts:
+  - path: $env:LOG_PATH
+    name: install
+    type: log
