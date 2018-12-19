@@ -1,8 +1,10 @@
 environment:
-  GW_FILENAME: groupWise.zip
-  GW_PATH: tools\
-  GW_FULL_FILE_PATH: $(GW_PATH)$(GW_FILENAME)
-  GW: https://bla-bla.bla
+  FILENAME: groupWise.zip
+  MSI_NAME: groupwise.msi
+  RELATIVE_PATH: tools\
+  FULL_FILE_PATH: $(RELATIVE_PATH)$(FILENAME)
+  MSI_PATH: ${RELATIVE_PATH}$(MSI_NAME)
+  DOWNLOAD_URL: https://storage.googleapis.com/cloudmigrator-automated-tests/2018GWClient.zip
 
 branches:
   only:
@@ -10,6 +12,15 @@ branches:
 
 max_jobs: 1
 
+init:
+    - ps: |
+
+    Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH 
+
+    - 7z x %FULL_FILE_PATH% -aos -o %RELATIVE_PATH% > nul
+
+    msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
+    
 install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
