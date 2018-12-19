@@ -29,6 +29,4 @@ install:
         Push-AppveyorArtifact %LOG_PATH%
       }
 artifacts:
-  - path:
-    name: install
-    type: log
+  - path: install.log
