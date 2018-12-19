@@ -22,13 +22,13 @@ install:
       Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
   - 7z x %GROUPWISE_FILE_PATH% > nul
   - ps: |
-      msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
+      msiexec /i $env:GROUPWISE_MSI_PATH /quiet /norestart /log install.log
       if(Test-Path -Path $env:LOG_PATH)
       {
         Write-Host "Log found"
         Push-AppveyorArtifact %LOG_PATH%
       }
 artifacts:
-  - path: C:\projects\appvtest\
+  - path:
     name: install
     type: log
