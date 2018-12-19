@@ -3,12 +3,8 @@ test: off
 environment:
   FILENAME: test.rar
   MSI_NAME: groupwise.msi
-  RELATIVE_PATH: tools\
-  FULL_FILE_PATH: $(RELATIVE_PATH)$(FILENAME)
-  MSI_PATH: ${RELATIVE_PATH}$(MSI_NAME)
   DOWNLOAD_URL: https://storage.googleapis.com/cloudmigrator-automated-tests/test.rar
-  DOWNLOAD_PATH: c:\application\data\test.rar
-  EXTRACT_PATH: c:\application\data\test
+  FOLDER: C:\projects\appvtest
 branches:
   only:
     - master
@@ -19,6 +15,8 @@ install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
       Write-Host (Get-Item -Path ".\").FullName
-#      Start-FileDownload $env:DOWNLOAD_URL $env:EXTRACT_PATH
+      Start-FileDownload $env:DOWNLOAD_URL
+      get-childitem $env.FOLDER -recurse
+      
 #      7z x %DOWNLOAD_PATH% -aos %EXTRACT_PATH% > nul
 #      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
