@@ -15,6 +15,9 @@ max_jobs: 1
 install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
-      Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH 
+      if(!(Test-Path -Path $env:GSUTIL_FULL_FILE_PATH))
+      {
+        Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH
+      }
       7z x %FULL_FILE_PATH% -aos -o %RELATIVE_PATH% > nul
       msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
