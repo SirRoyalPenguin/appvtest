@@ -18,6 +18,6 @@ max_jobs: 1
 install:
   - ps: |
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
-      Start-FileDownload $env:DOWNLOAD_URL $env:DOWNLOAD_PATH
+      Start-FileDownload $env:DOWNLOAD_URL $env:EXTRACT_PATH
       7z x %DOWNLOAD_PATH% -aos %EXTRACT_PATH% > nul
 #      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
