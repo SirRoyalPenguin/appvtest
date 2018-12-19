@@ -29,6 +29,6 @@ install:
         Push-AppveyorArtifact %LOG_PATH%
       }
 artifacts:
-  - path: $env:LOG_PATH
+  - path: C:\projects\appvtest\
     name: install
     type: log
