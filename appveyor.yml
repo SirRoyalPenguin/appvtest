@@ -20,7 +20,9 @@ install:
       Write-Host $"(Test-Path -Path $env:FULL_FILE_PATH)"
       if(!(Test-Path -Path $env:FULL_FILE_PATH))
       {
-        Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH
+#        Start-FileDownload $env:DOWNLOAD_URL $env:FULL_FILE_PATH
+        Start-FileDownload $env:DOWNLOAD_URL
       }
 #      7z x %FULL_FILE_PATH% -aos -o %RELATIVE_PATH% > nul
+      7z x %FILENAME% > nul
 #      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
