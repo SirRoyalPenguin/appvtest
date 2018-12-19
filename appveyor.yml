@@ -1,3 +1,4 @@
+build: off
 test: off
 
 environment:
@@ -25,6 +26,7 @@ install:
       if(Test-Path -Path $env:LOG_PATH)
       {
         Write-Host "Log found"
+        Push-AppveyorArtifact $env:LOG_PATH
       }
 artifacts:
   - path: $env:LOG_PATH
