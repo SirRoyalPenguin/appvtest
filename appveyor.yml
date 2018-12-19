@@ -20,7 +20,8 @@ install:
       Write-Host "Hello, Build!" -BackgroundColor Yellow -ForegroundColor Black
       Start-FileDownload $env:GROUPWISE_DOWNLOAD_URL
   - 7z x %GROUPWISE_FILE_PATH% > nul
-  - ps: msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
-  - ps: Get-ChildItem "c:\Program Files (x86)\"
-   Write-Host "==================="
-  - ps: get-childitem $env.FOLDER
+  - ps: |
+      msiexec /i $env:GROUPWISE_MSI_PATH /quiet /qn /norestart /log install.log
+      Get-ChildItem "c:\Program Files (x86)\"
+      Write-Host "==================="
+      get-childitem $env.FOLDER
