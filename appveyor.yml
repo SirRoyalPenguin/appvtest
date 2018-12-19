@@ -27,7 +27,8 @@ install:
       if(Test-Path -Path $env:LOG_PATH)
       {
         Write-Host "Log found"
-        Push-AppveyorArtifact %LOG_PATH%
+        Push-AppveyorArtifact $env:LOG_PATH
       }
+      Get-ChildItem "c:\Program Files (x86)\"
 artifacts:
   - path: install.log
