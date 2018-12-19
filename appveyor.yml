@@ -17,6 +17,6 @@ install:
       Write-Host (Get-Item -Path ".\").FullName
       Start-FileDownload $env:DOWNLOAD_URL
       get-childitem $env.FOLDER -recurse
-      
-#      7z x %DOWNLOAD_PATH% -aos %EXTRACT_PATH% > nul
+      7z x C:\projects\appvtest\test.rar > nul
+      get-childitem $env.FOLDER 
 #      msiexec /i MSI_PATH /quiet /qn /norestart /log install.log
